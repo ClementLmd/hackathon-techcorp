@@ -5,6 +5,7 @@ import { useChat } from "@ai-sdk/react";
 import { AlertTriangle, RotateCcw, Sparkles, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useChatConfig } from "@/hooks/use-chat-config";
+import { clearChatHistory, useChatHistoryPersistence } from "@/hooks/use-chat-history";
 import { useServerHealth } from "@/hooks/use-server-health";
 import { ChatInput } from "./chat-input";
 import { ConnectionBadge } from "./connection-badge";
@@ -22,6 +23,8 @@ export function ChatPanel() {
   const health = useServerHealth(config.baseURL, config.model, ready);
   const { messages, sendMessage, status, stop, error, regenerate, setMessages, clearError } =
     useChat();
+
+  useChatHistoryPersistence(messages, status, setMessages);
 
   const requestBody = () => ({
     baseURL: config.baseURL,
@@ -49,6 +52,7 @@ export function ChatPanel() {
     stop();
     clearError();
     setMessages([]);
+    clearChatHistory();
   }
 
   const isEmpty = messages.length === 0;

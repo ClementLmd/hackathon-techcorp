@@ -50,7 +50,7 @@ Le panneau **Réglages** permet de modifier (sans redémarrer l'app) :
 - System prompt (orienté finance/business)
 - Température et tokens max
 
-Les préférences sont **persistées dans le localStorage** du navigateur.
+Les préférences et **l'historique de conversation** sont **persistés dans le localStorage** du navigateur (rechargement de page inclus).
 
 ### Ollama local (développement)
 
