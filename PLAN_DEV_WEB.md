@@ -56,10 +56,6 @@ Le navigateur ne parle jamais directement a Ollama: tout passe par notre route `
 - INFRA doit fournir: URL + port du serveur, et le **nom exact du modele** charge dans Ollama (pour `OLLAMA_MODEL`). Defaut: `http://localhost:11434`.
 - Comme l'integration est configurable, on peut commencer immediatement avec un Ollama local (ex. `ollama run phi3.5`) puis basculer sur le serveur d'INFRA en changeant `.env.local`.
 
-## Emplacement
-
-- App Next.js relocalisee dans `hackathon_ynov/rendu/devweb/` (etait dans `web/`).
-
 ## Livrables (cf. sujet)
 
 - Interface web complete et fonctionnelle
