@@ -4,9 +4,10 @@ import { useEffect, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
 import { AlertTriangle, Bot, RotateCcw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DEFAULT_CONFIG, type ChatConfig } from "@/lib/chat-config";
+import { useChatConfig } from "@/hooks/use-chat-config";
 import { ChatInput } from "./chat-input";
 import { MessageBubble } from "./message-bubble";
+import { SettingsDialog } from "./settings-dialog";
 
 const SUGGESTIONS = [
   "Explique-moi ce qu'est l'EBITDA.",
@@ -14,11 +15,13 @@ const SUGGESTIONS = [
   "Resume les bases d'un business plan.",
 ];
 
-export function ChatPanel({ config = DEFAULT_CONFIG }: { config?: ChatConfig }) {
+export function ChatPanel() {
+  const { config, setConfig, resetConfig } = useChatConfig();
   const { messages, sendMessage, status, stop, error, regenerate, setMessages, clearError } =
     useChat();
 
   const requestBody = () => ({
+    baseURL: config.baseURL,
     model: config.model,
     system: config.systemPrompt,
     temperature: config.temperature,
@@ -58,10 +61,13 @@ export function ChatPanel({ config = DEFAULT_CONFIG }: { config?: ChatConfig }) 
             <p className="text-xs text-muted-foreground">TechCorp Industries</p>
           </div>
         </div>
-        <Button variant="ghost" size="sm" onClick={newConversation} disabled={isEmpty && !isStreaming}>
-          <RotateCcw className="size-4" />
-          Nouvelle conversation
-        </Button>
+        <div className="flex items-center gap-1">
+          <SettingsDialog config={config} onSave={setConfig} onReset={resetConfig} />
+          <Button variant="ghost" size="sm" onClick={newConversation} disabled={isEmpty && !isStreaming}>
+            <RotateCcw className="size-4" />
+            Nouvelle conversation
+          </Button>
+        </div>
       </header>
 
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto">

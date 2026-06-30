@@ -11,6 +11,7 @@ Ce contrat permet de developper l'UI (etape 3) et la route (etape 2) en parallel
 {
   "messages": [ /* UIMessage[] de l'AI SDK (avec .parts) */ ],
   "model": "phi3.5",                // ChatConfig.model
+  "baseURL": "http://localhost:11434/v1", // ChatConfig.baseURL
   "system": "Tu es Phi-3.5-Financial...", // ChatConfig.systemPrompt
   "temperature": 0.7,                // ChatConfig.temperature
   "maxOutputTokens": 1024            // ChatConfig.maxOutputTokens
@@ -24,13 +25,14 @@ Un flux de messages UI de l'AI SDK (streaming), produit par :
 import { convertToModelMessages, streamText, createUIMessageStreamResponse, toUIMessageStream } from "ai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 
-const ollama = createOpenAICompatible({
-  name: "ollama",
-  baseURL: process.env.OLLAMA_BASE_URL ?? "http://localhost:11434/v1",
-});
-
 export async function POST(req: Request) {
-  const { messages, model, system, temperature, maxOutputTokens } = await req.json();
+  const { messages, model, system, temperature, maxOutputTokens, baseURL } = await req.json();
+
+  const ollama = createOpenAICompatible({
+    name: "ollama",
+    baseURL: baseURL ?? process.env.OLLAMA_BASE_URL ?? "http://localhost:11434/v1",
+  });
+
   const result = streamText({
     model: ollama(model ?? process.env.OLLAMA_MODEL ?? "phi3.5"),
     system,
@@ -42,7 +44,7 @@ export async function POST(req: Request) {
 }
 ```
 
-> Le front est tolerant : si `model/system/temperature/maxOutputTokens` sont absents, la route
+> Le front est tolerant : si `baseURL/model/system/temperature/maxOutputTokens` sont absents, la route
 > doit utiliser ses propres valeurs par defaut (variables d'environnement).
 
 ## Variables d'environnement (cote serveur)

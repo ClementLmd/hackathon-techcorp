@@ -1,48 +1,50 @@
+import {
+  convertToModelMessages,
+  createUIMessageStreamResponse,
+  streamText,
+  toUIMessageStream,
+} from "ai";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+
+const DEFAULT_BASE_URL = process.env.OLLAMA_BASE_URL ?? "http://localhost:11434/v1";
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const messages = Array.isArray(body?.messages) ? body.messages : [];
-    const temperature = body?.temperature ?? 0.2;
-    const max_tokens = body?.max_tokens ?? 512;
-
-    const systemPrompt =
+    const model = body?.model ?? process.env.OLLAMA_MODEL ?? "phi3.5";
+    const system =
       body?.system ??
       process.env.OLLAMA_SYSTEM_PROMPT ??
       "You are a helpful financial assistant focused on corporate finance and business.";
+    const temperature = typeof body?.temperature === "number" ? body.temperature : 0.2;
+    const maxOutputTokens =
+      typeof body?.maxOutputTokens === "number"
+        ? body.maxOutputTokens
+        : typeof body?.max_tokens === "number"
+          ? body.max_tokens
+          : 1024;
+    const baseURL = body?.baseURL ?? process.env.OLLAMA_BASE_URL ?? DEFAULT_BASE_URL;
 
-    const model = body?.model ?? process.env.OLLAMA_MODEL ?? "phi3.5";
-    const base = process.env.OLLAMA_BASE_URL ?? "http://localhost:11434/v1";
+    const ollama = createOpenAICompatible({
+      name: "ollama",
+      baseURL,
+    });
 
-    const payload = {
-      model,
-      messages: [{ role: "system", content: systemPrompt }, ...messages],
+    const result = streamText({
+      model: ollama(model),
+      system,
       temperature,
-      max_tokens,
-      stream: true,
-    };
-
-    const res = await fetch(`${base}/chat/completions`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      maxOutputTokens,
+      messages: await convertToModelMessages(messages),
     });
 
-    if (!res.ok) {
-      const text = await res.text();
-      return new Response(text, { status: res.status });
-    }
-
-    const contentType = res.headers.get("content-type") ?? "text/event-stream";
-    const stream = res.body;
-
-    return new Response(stream, {
-      headers: {
-        "Content-Type": contentType,
-        "Cache-Control": "no-store",
-      },
+    return createUIMessageStreamResponse({
+      stream: toUIMessageStream({ stream: result.stream }),
     });
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err?.message ?? String(err) }), {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
