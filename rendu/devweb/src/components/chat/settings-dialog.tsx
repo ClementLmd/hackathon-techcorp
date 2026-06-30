@@ -16,14 +16,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DEFAULT_CONFIG, type ChatConfig } from "@/lib/chat-config";
+import { cn } from "@/lib/utils";
 
 type SettingsDialogProps = {
   config: ChatConfig;
   onSave: (config: ChatConfig) => void;
   onReset: () => void;
+  inverted?: boolean;
 };
 
-export function SettingsDialog({ config, onSave, onReset }: SettingsDialogProps) {
+export function SettingsDialog({ config, onSave, onReset, inverted }: SettingsDialogProps) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<ChatConfig>(config);
 
@@ -50,17 +52,24 @@ export function SettingsDialog({ config, onSave, onReset }: SettingsDialogProps)
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button variant="ghost" size="sm" aria-label="Reglages">
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label="Réglages"
+            className={cn(
+              inverted && "text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground",
+            )}
+          >
             <Settings2 className="size-4" />
-            Reglages
+            <span className="hidden sm:inline">Réglages</span>
           </Button>
         }
       />
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Reglages du chat</DialogTitle>
+          <DialogTitle>Réglages du chat</DialogTitle>
           <DialogDescription>
-            URL du serveur, modele et parametres d&apos;inference. Sauvegarde locale dans le
+            URL du serveur, modèle et paramètres d&apos;inférence. Sauvegarde locale dans le
             navigateur.
           </DialogDescription>
         </DialogHeader>
@@ -77,7 +86,7 @@ export function SettingsDialog({ config, onSave, onReset }: SettingsDialogProps)
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="model">Nom du modele</Label>
+            <Label htmlFor="model">Nom du modèle</Label>
             <Input
               id="model"
               value={draft.model}
@@ -98,7 +107,7 @@ export function SettingsDialog({ config, onSave, onReset }: SettingsDialogProps)
 
           <div className="grid gap-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="temperature">Temperature</Label>
+              <Label htmlFor="temperature">Température</Label>
               <span className="text-xs text-muted-foreground">{draft.temperature.toFixed(1)}</span>
             </div>
             <input
@@ -114,7 +123,7 @@ export function SettingsDialog({ config, onSave, onReset }: SettingsDialogProps)
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="maxOutputTokens">Tokens max par reponse</Label>
+            <Label htmlFor="maxOutputTokens">Tokens max par réponse</Label>
             <Input
               id="maxOutputTokens"
               type="number"
@@ -129,7 +138,7 @@ export function SettingsDialog({ config, onSave, onReset }: SettingsDialogProps)
 
         <DialogFooter className="gap-2 sm:gap-0">
           <Button type="button" variant="outline" onClick={handleReset}>
-            Reinitialiser
+            Réinitialiser
           </Button>
           <Button type="button" onClick={handleSave}>
             Enregistrer

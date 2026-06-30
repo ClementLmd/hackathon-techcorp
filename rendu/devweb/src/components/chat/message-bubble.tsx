@@ -24,10 +24,10 @@ export function MessageBubble({ message }: { message: UIMessage }) {
 
       <div
         className={cn(
-          "max-w-[80%] rounded-2xl px-4 py-2.5",
+          "max-w-[88%] rounded-2xl px-4 py-2.5 sm:max-w-[80%]",
           isUser
-            ? "bg-primary text-primary-foreground rounded-br-sm"
-            : "bg-muted text-foreground rounded-bl-sm",
+            ? "rounded-br-sm bg-primary text-primary-foreground shadow-sm"
+            : "rounded-bl-sm border border-border/60 bg-card text-foreground shadow-sm",
         )}
       >
         {isUser ? (

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 type ConnectionBadgeProps = {
   status: "checking" | "connected" | "disconnected";
   onRefresh?: () => void;
+  inverted?: boolean;
 };
 
 const LABELS = {
@@ -16,22 +17,23 @@ const LABELS = {
   disconnected: "Déconnecté",
 } as const;
 
-export function ConnectionBadge({ status, onRefresh }: ConnectionBadgeProps) {
+export function ConnectionBadge({ status, onRefresh, inverted }: ConnectionBadgeProps) {
   return (
     <div className="flex items-center gap-1">
       <Badge
         variant={status === "disconnected" ? "destructive" : "secondary"}
         className={cn(
-          status === "connected" && "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+          inverted && status !== "disconnected" && "border-primary-foreground/20 bg-primary-foreground/15 text-primary-foreground",
+          !inverted && status === "connected" && "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
           status === "checking" && "animate-pulse",
         )}
       >
         <span
           className={cn(
             "size-1.5 rounded-full",
-            status === "connected" && "bg-emerald-500",
+            status === "connected" && (inverted ? "bg-emerald-300" : "bg-emerald-500"),
             status === "disconnected" && "bg-destructive",
-            status === "checking" && "bg-muted-foreground",
+            status === "checking" && (inverted ? "bg-primary-foreground/60" : "bg-muted-foreground"),
           )}
         />
         {LABELS[status]}
@@ -43,7 +45,8 @@ export function ConnectionBadge({ status, onRefresh }: ConnectionBadgeProps) {
           size="icon-sm"
           onClick={onRefresh}
           disabled={status === "checking"}
-          aria-label="Verifier la connexion"
+          aria-label="Vérifier la connexion"
+          className={cn(inverted && "text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground")}
         >
           <RefreshCw className={cn("size-3.5", status === "checking" && "animate-spin")} />
         </Button>
